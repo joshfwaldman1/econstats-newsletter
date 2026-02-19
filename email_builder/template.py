@@ -265,7 +265,7 @@ def _build_html(
         html_parts.append('</td></tr>')
 
     # ── Footer ─────────────────────────────────────────────────────────
-    total_stories = 1 + len(from_the_research or []) + len(in_the_data or []) + len(headlines or [])
+    total_stories = 1 + len(research or []) + len(data_stories or []) + len(headlines or [])
 
     html_parts.extend([
         '<tr><td style="padding: 24px 40px 32px 40px;">',
