@@ -116,10 +116,16 @@ def render_chart(
             color=line_color,
         )
 
-    # Title
-    chart_title = title_override or series_data.title
-    if requires_yoy_percent(series_data.series_id) and "%" not in chart_title.lower() and "change" not in chart_title.lower():
-        chart_title += " (YoY % Change)"
+    # Title — use clean display name from registry, not FRED's verbose title
+    if title_override:
+        chart_title = title_override
+    elif registry_entry and registry_entry.display_name:
+        chart_title = registry_entry.display_name
+    else:
+        chart_title = series_data.title
+        # Fallback: append YoY% note if needed and not already present
+        if requires_yoy_percent(series_data.series_id) and "%" not in chart_title.lower() and "change" not in chart_title.lower():
+            chart_title += " (YoY % Change)"
     ax.set_title(chart_title, fontsize=12, fontweight="bold", pad=10)
 
     # Y-axis label

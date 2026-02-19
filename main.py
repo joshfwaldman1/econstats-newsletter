@@ -208,8 +208,18 @@ def main() -> None:
     output_dir = Path("output/charts")
     chart_results: dict[str, dict] = {}  # series_id → render result
 
+    # Collect custom chart titles from curation (COTD may have a custom title)
+    custom_chart_titles: dict[str, str] = {}
+    cotd_chart_title = chart_of_the_day.get("chart_title")
+    if cotd_chart_title and cotd_series:
+        custom_chart_titles[cotd_series] = cotd_chart_title
+
     for i, (series_id, data) in enumerate(series_data_map.items()):
-        result = render_chart(data, output_dir=output_dir, color_index=i)
+        title_override = custom_chart_titles.get(series_id)
+        result = render_chart(
+            data, output_dir=output_dir, color_index=i,
+            title_override=title_override,
+        )
         if result:
             chart_results[series_id] = result
 
@@ -263,11 +273,39 @@ def main() -> None:
 
     logger.info("Chart URLs mapped for %d series", len(chart_urls))
 
-    # ── Step 9: Generate chart annotations ─────────────────────────────
-    logger.info("Step 9/10: Generating annotations...")
-    from curation.curator import generate_annotation
+    # ── Step 9: Generate chart annotations (with GROUND TRUTH) ──────────
+    logger.info("Step 9/10: Generating annotations with ground-truth data...")
+    from curation.curator import generate_annotation, generate_cotd_context
+    from fred.transforms import format_value, get_change_summary
 
-    # Annotate "In the Data" stories
+    # 9a: Regenerate COTD context grounded in REAL data
+    if cotd_series and cotd_series in chart_results:
+        cotd_result = chart_results[cotd_series]
+        cotd_data = series_data_map.get(cotd_series)
+        reg = lookup(cotd_series)
+
+        if cotd_data and reg:
+            # Build a summary of recent observations for context
+            valid_obs = [o for o in cotd_data.observations if o.value is not None]
+            recent = valid_obs[-6:] if len(valid_obs) >= 6 else valid_obs
+            obs_summary = ", ".join(
+                f"{o.date}: {format_value(o.value, reg.unit_type, reg.default_transform)}"
+                for o in recent
+            )
+
+            new_context = generate_cotd_context(
+                series_id=cotd_series,
+                series_name=reg.display_name or reg.name,
+                latest_value=cotd_result.get("latest_value", "N/A"),
+                latest_date=cotd_result.get("latest_date", ""),
+                source_headline=chart_of_the_day.get("source_headline", chart_of_the_day.get("headline", "")),
+                our_headline=chart_of_the_day.get("headline", ""),
+                observations_summary=obs_summary,
+            )
+            chart_of_the_day["context"] = new_context
+            logger.info("COTD context regenerated with ground-truth data")
+
+    # 9b: Annotate "In the Data" stories
     for story in in_the_data:
         series_id = story.get("series_id", "")
         result = chart_results.get(series_id)

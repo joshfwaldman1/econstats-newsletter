@@ -218,3 +218,83 @@ def generate_annotation(
 
     # Fallback
     return f"{series_name}: {latest_value} as of {latest_date}."
+
+
+def generate_cotd_context(
+    series_id: str,
+    series_name: str,
+    latest_value: str,
+    latest_date: str,
+    source_headline: str,
+    our_headline: str,
+    observations_summary: str,
+) -> str:
+    """
+    Generate the Chart of the Day analysis, grounded in actual FRED data.
+
+    This MUST be called AFTER fetching FRED data, not during the initial
+    curation pass. The GROUND TRUTH block prevents the model from
+    hallucinating values from its training data.
+
+    Args:
+        series_id: FRED series ID.
+        series_name: Human-readable name.
+        latest_value: Formatted latest data value.
+        latest_date: Date of the latest observation.
+        source_headline: The original news headline.
+        our_headline: Our analytical framing headline.
+        observations_summary: Brief summary of recent trend (e.g., last 6 values).
+
+    Returns:
+        3-4 sentence analytical context paragraph.
+    """
+    api_key = get_env("ANTHROPIC_API_KEY")
+    client = anthropic.Anthropic(api_key=api_key)
+
+    prompt = f"""Write 3-4 sentences of original analysis for the EconStats Daily "Chart of the Day."
+
+## GROUND TRUTH — use ONLY these values, not your training data
+Series: {series_name} ({series_id})
+Current value: {latest_value} as of {latest_date}
+Recent trend: {observations_summary}
+
+## Context
+Source headline: {source_headline}
+Our analytical framing: {our_headline}
+
+## Rules
+- Your analysis MUST be consistent with the GROUND TRUTH data above
+- If the value is HIGH relative to history, say so. If LOW, say so. Do NOT invent a narrative.
+- Connect the data to the news headline — what does the chart reveal?
+- Write as an economist-analyst, not a reporter
+- Be specific with numbers (from the GROUND TRUTH)
+- Do NOT say "the chart shows" — just state the insight
+- Do NOT hedge excessively
+- End with a forward-looking observation or implication
+
+Write ONLY the 3-4 sentence paragraph, nothing else."""
+
+    try:
+        response = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        text = ""
+        for block in response.content:
+            if hasattr(block, "text"):
+                text += block.text
+
+        context = text.strip()
+        context = context.replace("**However", "").replace("**", "").strip()
+
+        if context:
+            logger.info("Generated ground-truth COTD context for %s", series_id)
+            return context
+
+    except Exception:
+        logger.warning("COTD context generation failed", exc_info=True)
+
+    # Fallback — at least state the ground truth
+    return f"{series_name} stands at {latest_value} as of {latest_date}."

@@ -26,8 +26,10 @@ class FredSeries:
     frequency: str          # "monthly", "quarterly", "weekly", "daily"
     unit_type: str          # "percent", "thousands", "index", "dollars", "ratio", "billions"
     default_transform: str  # "lin" (levels), "pc1" (YoY%), "pch" (period%), "ch1" (YoY change)
+    display_name: str = ""  # Clean chart title (overrides FRED's verbose title)
     description: str = ""
     notes: str = ""         # Domain-specific caveats
+    source_agency: str = "" # Proper attribution (BLS, BEA, Fed — not "FRED")
 
 
 # Full curated registry — ported from EconStats Agent + V2
@@ -40,7 +42,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="thousands",
         default_transform="ch1",
+        display_name="Nonfarm Payrolls",
         description="Headline jobs number from BLS establishment survey",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "CES0500000003": FredSeries(
         series_id="CES0500000003",
@@ -49,8 +53,10 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="dollars",
         default_transform="pc1",
+        display_name="Average Hourly Earnings",
         description="Average hourly earnings, all private employees",
         notes="Show YoY% for trend analysis; nominal, not real",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "MANEMP": FredSeries(
         series_id="MANEMP",
@@ -59,6 +65,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Manufacturing Employment",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "USCONS": FredSeries(
         series_id="USCONS",
@@ -67,6 +75,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Construction Employment",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
 
     # ── Employment (Household / CPS) ───────────────────────────────────
@@ -77,7 +87,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Unemployment Rate",
         description="Headline unemployment rate from household survey",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "CIVPART": FredSeries(
         series_id="CIVPART",
@@ -86,7 +98,10 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Labor Force Participation Rate",
         description="Share of 16+ population in labor force",
+        notes="Prefer prime-age EPOP (LNS12300060) for labor market tightness",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "LNS12300060": FredSeries(
         series_id="LNS12300060",
@@ -95,8 +110,10 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Prime-Age Employment Rate (25-54)",
         description="Best single measure of labor market tightness (25-54)",
         notes="Preferred over overall LFPR — controls for Boomer retirement",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "JTSJOL": FredSeries(
         series_id="JTSJOL",
@@ -105,6 +122,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Job Openings",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "JTSQUR": FredSeries(
         series_id="JTSQUR",
@@ -113,6 +132,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Quits Rate",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "U6RATE": FredSeries(
         series_id="U6RATE",
@@ -121,7 +142,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Broad Unemployment Rate (U-6)",
         description="Broadest unemployment measure — includes discouraged + part-time for economic reasons",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "ICSA": FredSeries(
         series_id="ICSA",
@@ -130,7 +153,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="weekly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Initial Jobless Claims",
         description="Best real-time labor market signal",
+        source_agency="U.S. Employment and Training Administration",
     ),
     "CCSA": FredSeries(
         series_id="CCSA",
@@ -139,6 +164,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="weekly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Continued Jobless Claims",
+        source_agency="U.S. Employment and Training Administration",
     ),
 
     # ── Demographic Unemployment ───────────────────────────────────────
@@ -149,6 +176,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Black Unemployment Rate",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "LNS14000009": FredSeries(
         series_id="LNS14000009",
@@ -157,6 +186,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Hispanic Unemployment Rate",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
 
     # ── Inflation ──────────────────────────────────────────────────────
@@ -167,8 +198,10 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="CPI Inflation (YoY %)",
         description="Headline consumer price index",
         notes="ALWAYS show as YoY % — raw index value is meaningless",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "CPILFESL": FredSeries(
         series_id="CPILFESL",
@@ -177,8 +210,10 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="Core CPI Inflation (YoY %)",
         description="CPI excluding volatile food and energy",
         notes="ALWAYS show as YoY % — raw index value is meaningless",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "PCEPILFE": FredSeries(
         series_id="PCEPILFE",
@@ -187,8 +222,10 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="Core PCE Inflation (YoY %)",
         description="Fed's preferred inflation target measure",
         notes="ALWAYS show as YoY % — raw index value is meaningless",
+        source_agency="U.S. Bureau of Economic Analysis",
     ),
     "CPIUFDSL": FredSeries(
         series_id="CPIUFDSL",
@@ -197,7 +234,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="Food Inflation (YoY %)",
         notes="Show as YoY %",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "CPIENGSL": FredSeries(
         series_id="CPIENGSL",
@@ -206,7 +245,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="Energy Inflation (YoY %)",
         notes="Show as YoY %",
+        source_agency="U.S. Bureau of Labor Statistics",
     ),
     "CUSR0000SAH1": FredSeries(
         series_id="CUSR0000SAH1",
@@ -215,7 +256,23 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="Shelter Inflation (YoY %)",
         notes="Lags actual market rents by ~12 months",
+        source_agency="U.S. Bureau of Labor Statistics",
+    ),
+
+    # ── Production ─────────────────────────────────────────────────────
+    "INDPRO": FredSeries(
+        series_id="INDPRO",
+        name="Industrial Production Index",
+        category="production",
+        frequency="monthly",
+        unit_type="index",
+        default_transform="pc1",
+        display_name="Industrial Production (YoY %)",
+        description="Broad measure of manufacturing, mining, and utility output",
+        notes="Show as YoY % — raw index value is meaningless",
+        source_agency="Federal Reserve",
     ),
 
     # ── Growth ─────────────────────────────────────────────────────────
@@ -226,7 +283,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="quarterly",
         unit_type="billions",
         default_transform="pc1",
+        display_name="Real GDP Growth (YoY %)",
         description="Real (inflation-adjusted) GDP — ALWAYS use this, never nominal",
+        source_agency="U.S. Bureau of Economic Analysis",
     ),
     "A191RL1Q225SBEA": FredSeries(
         series_id="A191RL1Q225SBEA",
@@ -235,7 +294,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="quarterly",
         unit_type="percent",
         default_transform="lin",
+        display_name="GDP Growth Rate (Annualized)",
         description="Annualized quarterly GDP growth rate",
+        source_agency="U.S. Bureau of Economic Analysis",
     ),
 
     # ── Interest Rates ─────────────────────────────────────────────────
@@ -246,6 +307,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Federal Funds Rate",
+        source_agency="Federal Reserve",
     ),
     "DGS10": FredSeries(
         series_id="DGS10",
@@ -254,6 +317,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="daily",
         unit_type="percent",
         default_transform="lin",
+        display_name="10-Year Treasury Yield",
+        source_agency="Federal Reserve",
     ),
     "DGS2": FredSeries(
         series_id="DGS2",
@@ -262,6 +327,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="daily",
         unit_type="percent",
         default_transform="lin",
+        display_name="2-Year Treasury Yield",
+        source_agency="Federal Reserve",
     ),
     "T10Y2Y": FredSeries(
         series_id="T10Y2Y",
@@ -270,7 +337,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="daily",
         unit_type="percent",
         default_transform="lin",
+        display_name="Yield Curve Spread (10Y − 2Y)",
         description="Negative = inverted curve, historically precedes recessions",
+        source_agency="Federal Reserve",
     ),
     "MORTGAGE30US": FredSeries(
         series_id="MORTGAGE30US",
@@ -279,6 +348,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="weekly",
         unit_type="percent",
         default_transform="lin",
+        display_name="30-Year Mortgage Rate",
+        source_agency="Freddie Mac",
     ),
 
     # ── Housing ────────────────────────────────────────────────────────
@@ -289,7 +360,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="pc1",
+        display_name="Home Prices (YoY %)",
         notes="Show as YoY %",
+        source_agency="S&P Dow Jones Indices",
     ),
     "HOUST": FredSeries(
         series_id="HOUST",
@@ -298,6 +371,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Housing Starts",
+        source_agency="U.S. Census Bureau",
     ),
     "PERMIT": FredSeries(
         series_id="PERMIT",
@@ -306,6 +381,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="thousands",
         default_transform="lin",
+        display_name="Building Permits",
+        source_agency="U.S. Census Bureau",
     ),
 
     # ── Consumer ───────────────────────────────────────────────────────
@@ -316,7 +393,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="index",
         default_transform="lin",
+        display_name="Consumer Sentiment",
         description="University of Michigan consumer sentiment index",
+        source_agency="University of Michigan",
     ),
     "RSXFS": FredSeries(
         series_id="RSXFS",
@@ -325,6 +404,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="millions",
         default_transform="pc1",
+        display_name="Retail Sales (YoY %)",
+        source_agency="U.S. Census Bureau",
     ),
     "PSAVERT": FredSeries(
         series_id="PSAVERT",
@@ -333,6 +414,8 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="monthly",
         unit_type="percent",
         default_transform="lin",
+        display_name="Personal Savings Rate",
+        source_agency="U.S. Bureau of Economic Analysis",
     ),
 
     # ── Financial Conditions ───────────────────────────────────────────
@@ -343,7 +426,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="weekly",
         unit_type="index",
         default_transform="lin",
+        display_name="Financial Conditions Index",
         description="Negative = loose conditions, positive = tight",
+        source_agency="Federal Reserve Bank of Chicago",
     ),
     "BAA10Y": FredSeries(
         series_id="BAA10Y",
@@ -352,7 +437,9 @@ FRED_REGISTRY: dict[str, FredSeries] = {
         frequency="daily",
         unit_type="percent",
         default_transform="lin",
+        display_name="Corporate Credit Spread",
         description="Credit spread — widens during stress",
+        source_agency="Federal Reserve",
     ),
 }
 
@@ -387,7 +474,7 @@ IRON_LAW_CONFLICTS: list[tuple[set[str], str]] = [
 INDEX_SERIES_REQUIRE_YOY: set[str] = {
     "CPIAUCSL", "CPILFESL", "PCEPILFE",
     "CPIUFDSL", "CPIENGSL", "CUSR0000SAH1",
-    "CSUSHPINSA",
+    "CSUSHPINSA", "INDPRO",
 }
 
 
@@ -422,7 +509,7 @@ RSS_FEEDS: list[dict[str, str]] = [
     # Premium
     {"name": "Bloomberg", "url": "https://feeds.bloomberg.com/economics/news.rss"},
     {"name": "FT", "url": "https://www.ft.com/rss/home/us"},
-    {"name": "WSJ", "url": "https://feeds.a]wsj.com/wsj/xml/rss/3_7085.xml"},
+    {"name": "WSJ", "url": "https://feeds.a.wsj.com/wsj/xml/rss/3_7085.xml"},
     {"name": "NYT", "url": "https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml"},
     {"name": "Reuters", "url": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best"},
     {"name": "Politico", "url": "https://rss.politico.com/economy.xml"},

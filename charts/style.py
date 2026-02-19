@@ -111,26 +111,34 @@ def format_source_label(series_id: str) -> str:
     """
     Generate a source attribution label for chart footer.
 
+    Uses the source_agency field from the registry when available,
+    falling back to prefix-based heuristics. Always attributes the
+    actual data agency, not "FRED" (which is just the distribution platform).
+
     Args:
         series_id: FRED series identifier.
 
     Returns:
-        Attribution string like "Source: FRED / U.S. Bureau of Labor Statistics".
+        Attribution string like "Source: U.S. Bureau of Labor Statistics | EconStats".
     """
-    # BLS series (employment, CPI)
-    bls_prefixes = ("LNS", "CES", "UNRATE", "CIVPART", "U6RATE", "CPI", "CUSR")
+    from fred.registry import lookup
+
+    # Use registry source_agency if available
+    entry = lookup(series_id)
+    if entry and entry.source_agency:
+        return f"Source: {entry.source_agency} | EconStats"
+
+    # Fallback: prefix-based heuristics
+    bls_prefixes = ("LNS", "CES", "UNRATE", "CIVPART", "U6RATE", "CPI", "CUSR", "JTS")
     if any(series_id.startswith(p) for p in bls_prefixes):
-        return f"Source: U.S. Bureau of Labor Statistics via FRED ({series_id})"
+        return f"Source: U.S. Bureau of Labor Statistics | EconStats"
 
-    # BEA series (GDP, PCE)
-    bea_prefixes = ("GDP", "A191", "PCE")
+    bea_prefixes = ("GDP", "A191", "PCE", "PSAVERT")
     if any(series_id.startswith(p) for p in bea_prefixes):
-        return f"Source: U.S. Bureau of Economic Analysis via FRED ({series_id})"
+        return f"Source: U.S. Bureau of Economic Analysis | EconStats"
 
-    # Treasury / Fed
-    fed_prefixes = ("DGS", "T10Y", "FEDFUNDS", "MORTGAGE")
+    fed_prefixes = ("DGS", "T10Y", "FEDFUNDS", "NFCI", "BAA")
     if any(series_id.startswith(p) for p in fed_prefixes):
-        return f"Source: Federal Reserve via FRED ({series_id})"
+        return f"Source: Federal Reserve | EconStats"
 
-    # Default
-    return f"Source: FRED ({series_id})"
+    return f"Source: FRED ({series_id}) | EconStats"
