@@ -104,7 +104,7 @@ def deduplicate(articles: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    """Run the full 10-step newsletter pipeline."""
+    """Run the full 11-step newsletter pipeline."""
     load_dotenv()
 
     logger.info("=" * 60)
@@ -116,7 +116,7 @@ def main() -> None:
     apply_newsletter_style()
 
     # ── Step 1: Fetch articles from all sources ────────────────────────
-    logger.info("Step 1/10: Fetching articles...")
+    logger.info("Step 1/11: Fetching articles...")
 
     from sources.newsapi_source import fetch_newsapi_articles
     from sources.rss_source import fetch_rss_articles
@@ -141,7 +141,7 @@ def main() -> None:
         sys.exit(1)
 
     # ── Step 2: Deduplicate ────────────────────────────────────────────
-    logger.info("Step 2/10: Deduplicating...")
+    logger.info("Step 2/11: Deduplicating...")
     unique_articles = deduplicate(all_articles)
 
     if len(unique_articles) < 5:
@@ -149,7 +149,7 @@ def main() -> None:
         sys.exit(1)
 
     # ── Step 3: Curate with Claude ─────────────────────────────────────
-    logger.info("Step 3/10: Curating with Claude...")
+    logger.info("Step 3/11: Curating with Claude...")
     from curation.curator import curate_newsletter
     curation = curate_newsletter(unique_articles)
 
@@ -163,7 +163,7 @@ def main() -> None:
     headlines_list = curation.get("headlines", [])
 
     # ── Step 4: Collect FRED series IDs needed ─────────────────────────
-    logger.info("Step 4/10: Identifying FRED series to fetch...")
+    logger.info("Step 4/11: Identifying FRED series to fetch...")
     series_ids_needed: list[str] = []
 
     # Chart of the Day
@@ -186,7 +186,7 @@ def main() -> None:
     logger.info("Need %d FRED series: %s", len(series_ids_needed), ", ".join(series_ids_needed))
 
     # ── Step 5: Fetch FRED data ────────────────────────────────────────
-    logger.info("Step 5/10: Fetching FRED data...")
+    logger.info("Step 5/11: Fetching FRED data...")
     from fred.client import fetch_series
     from fred.registry import get_default_transform, lookup
 
@@ -202,7 +202,7 @@ def main() -> None:
     logger.info("Fetched %d/%d FRED series", len(series_data_map), len(series_ids_needed))
 
     # ── Step 6: Render FRED charts ─────────────────────────────────────
-    logger.info("Step 6/10: Rendering FRED charts...")
+    logger.info("Step 6/11: Rendering FRED charts...")
     from charts.fred_chart import render_chart
 
     output_dir = Path("output/charts")
@@ -226,7 +226,7 @@ def main() -> None:
     logger.info("Rendered %d charts", len(chart_results))
 
     # ── Step 7: Extract paper charts (if any) ──────────────────────────
-    logger.info("Step 7/10: Extracting paper charts...")
+    logger.info("Step 7/11: Extracting paper charts...")
     from charts.paper_extractor import extract_charts
 
     paper_chart_results: list[dict] = []
@@ -252,7 +252,7 @@ def main() -> None:
     logger.info("Extracted %d paper charts", len(paper_chart_results))
 
     # ── Step 8: Deploy charts to GitHub Pages ──────────────────────────
-    logger.info("Step 8/10: Deploying charts...")
+    logger.info("Step 8/11: Deploying charts...")
     from deploy.github_pages import deploy_charts
 
     # Collect all chart file paths
@@ -274,7 +274,7 @@ def main() -> None:
     logger.info("Chart URLs mapped for %d series", len(chart_urls))
 
     # ── Step 9: Generate chart annotations (with GROUND TRUTH) ──────────
-    logger.info("Step 9/10: Generating annotations with ground-truth data...")
+    logger.info("Step 9/11: Generating annotations with ground-truth data...")
     from curation.curator import generate_annotation, generate_cotd_context
     from fred.transforms import format_value, get_change_summary
 

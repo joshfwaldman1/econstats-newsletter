@@ -93,6 +93,15 @@ def curate_newsletter(articles: list[dict]) -> dict | None:
 
     system_prompt = build_curation_system_prompt()
 
+    # Cap input articles to avoid bloating the prompt — the LLM only picks
+    # ~20 stories, so sending 300+ is wasteful and risks hitting token limits.
+    # Articles are already sorted by source priority from deduplication, so
+    # truncating keeps the highest-quality sources.
+    MAX_ARTICLES = 150
+    if len(articles) > MAX_ARTICLES:
+        logger.info("Capping articles from %d to %d for curation call", len(articles), MAX_ARTICLES)
+        articles = articles[:MAX_ARTICLES]
+
     # Build the user message with numbered articles
     today = datetime.now().strftime("%A, %B %d, %Y")
     article_lines: list[str] = [
@@ -118,7 +127,7 @@ def curate_newsletter(articles: list[dict]) -> dict | None:
     try:
         response = client.messages.create(
             model=CLAUDE_MODEL,
-            max_tokens=4000,
+            max_tokens=8000,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
@@ -134,7 +143,8 @@ def curate_newsletter(articles: list[dict]) -> dict | None:
 
         if result is None:
             logger.error("Failed to parse curation JSON from Claude response")
-            logger.debug("Raw response: %s", full_text[:500])
+            logger.info("Raw response (first 1000 chars): %s", full_text[:1000])
+            logger.info("Stop reason: %s", response.stop_reason)
             return None
 
         # Validate expected sections exist
