@@ -326,8 +326,50 @@ def main() -> None:
             story["annotation"] = annotation
             logger.info("Annotation grounded for %s (%s)", series_id, story.get("headline", "")[:50])
 
-    # ── Step 10: Build and send email ──────────────────────────────────
-    logger.info("Step 10/10: Building and sending email...")
+    # ── Step 10: Chief Economist review ────────────────────────────────
+    logger.info("Step 10/11: Chief Economist review (fact-check + quality gate)...")
+    from curation.reviewer import review_newsletter, apply_fixes, build_ground_truth_summary
+
+    ground_truth = build_ground_truth_summary(series_data_map, chart_results, lookup)
+
+    review = review_newsletter(
+        chart_of_the_day=chart_of_the_day,
+        from_the_research=from_the_research,
+        in_the_data=in_the_data,
+        headlines=headlines_list,
+        ground_truth_summary=ground_truth,
+    )
+
+    verdict = review.get("verdict", "pass")
+    issues = review.get("issues_found", [])
+    notes = review.get("reviewer_notes", "")
+    critical_count = sum(1 for i in issues if i.get("severity") == "critical")
+    warning_count = sum(1 for i in issues if i.get("severity") == "warning")
+
+    logger.info(
+        "Review verdict: %s | %d critical, %d warnings | %s",
+        verdict.upper(), critical_count, warning_count, notes,
+    )
+
+    # Log each issue
+    for issue in issues:
+        level = logging.ERROR if issue.get("severity") == "critical" else logging.WARNING
+        logger.log(
+            level,
+            "REVIEW [%s] %s.%s: %s",
+            issue.get("severity", "?").upper(),
+            issue.get("section", "?"),
+            issue.get("field", "?"),
+            issue.get("problem", "no description"),
+        )
+
+    # Apply critical fixes (modifies dicts in place)
+    if critical_count > 0:
+        fixes_applied = apply_fixes(review, chart_of_the_day, from_the_research, in_the_data, headlines_list)
+        logger.info("Applied %d/%d critical fixes", fixes_applied, critical_count)
+
+    # ── Step 11: Build and send email ──────────────────────────────────
+    logger.info("Step 11/11: Building and sending email...")
     from email_builder.template import build_email
     from email_builder.sender import send_newsletter
 

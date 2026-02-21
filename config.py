@@ -506,12 +506,14 @@ NEWSAPI_QUERIES: list[dict[str, str]] = [
 ]
 
 RSS_FEEDS: list[dict[str, str]] = [
-    # Premium
+    # Premium news — verified working as of Feb 2025
     {"name": "Bloomberg", "url": "https://feeds.bloomberg.com/economics/news.rss"},
-    {"name": "FT", "url": "https://www.ft.com/rss/home/us"},
-    {"name": "WSJ", "url": "https://feeds.a.wsj.com/wsj/xml/rss/3_7085.xml"},
+    {"name": "FT", "url": "https://www.ft.com/rss/economics"},
+    {"name": "WSJ", "url": "https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness"},
     {"name": "NYT", "url": "https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml"},
-    {"name": "Reuters", "url": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best"},
+    {"name": "Reuters", "url": "https://news.google.com/rss/search?q=site:reuters.com+economy&hl=en-US&gl=US&ceid=US:en"},
+    {"name": "WaPo", "url": "https://feeds.washingtonpost.com/rss/business"},
+    {"name": "Economist", "url": "https://www.economist.com/finance-and-economics/rss.xml"},
     {"name": "Politico", "url": "https://rss.politico.com/economy.xml"},
     {"name": "Axios", "url": "https://api.axios.com/feed/"},
     {"name": "The Hill", "url": "https://thehill.com/feed/"},
