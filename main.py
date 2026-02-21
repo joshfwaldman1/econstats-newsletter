@@ -306,10 +306,14 @@ def main() -> None:
             logger.info("COTD context regenerated with ground-truth data")
 
     # 9b: Annotate "In the Data" stories
+    # ALWAYS overwrite annotations when FRED data is available — the initial
+    # curation pass writes annotations from training data (no FRED access),
+    # which can hallucinate values (e.g., wrong GDP quarter). Ground-truth
+    # annotations from actual FRED data must take precedence.
     for story in in_the_data:
         series_id = story.get("series_id", "")
         result = chart_results.get(series_id)
-        if result and not story.get("annotation"):
+        if result:
             reg = lookup(series_id)
             series_name = reg.name if reg else series_id
             annotation = generate_annotation(
@@ -320,6 +324,7 @@ def main() -> None:
                 headline=story.get("headline", ""),
             )
             story["annotation"] = annotation
+            logger.info("Annotation grounded for %s (%s)", series_id, story.get("headline", "")[:50])
 
     # ── Step 10: Build and send email ──────────────────────────────────
     logger.info("Step 10/10: Building and sending email...")

@@ -84,8 +84,11 @@ chart pairings than 5 with forced ones.
 
 - Set series_id to null if no series genuinely fits
 - Stories WITHOUT a chart still appear — they just get text annotation only
-- When you DO pick a series, explain in the annotation what the chart reveals
-  that the headline doesn't
+- CRITICAL: Do NOT cite specific data values (e.g., "GDP grew 2.3%", "unemployment
+  at 4.1%") in the annotation field. Real FRED data will be injected later.
+  Instead, focus on WHY the story matters and what angle the chart reveals.
+- You MAY quote numbers that appear directly in the source article (with
+  quotation marks and attribution), but do NOT guess at current FRED values.
 - Distinguish between direct quotes from sources (use quotation marks) and
   your own analytical context
 
@@ -107,7 +110,7 @@ Return ONLY valid JSON (no markdown fences, no extra text):
     "url": "...",
     "series_id": "T10Y2Y",
     "chart_title": "Yield Curve Inversion Duration",
-    "context": "3-4 sentences of ORIGINAL analysis. What does the chart reveal that the headline missed? You are the analyst.",
+    "context": "Brief placeholder — describe the ANGLE of your analysis (what the chart will reveal) but do NOT cite specific data values. Real FRED data will be injected in a later step.",
     "cta_text": "Explore yield curve trends on econstats.org"
   }},
   "from_the_research": [
@@ -131,7 +134,7 @@ Return ONLY valid JSON (no markdown fences, no extra text):
       "source": "WSJ",
       "url": "...",
       "series_id": "FEDFUNDS" or null,
-      "annotation": "What does the data show? Quote key numbers. Use quotation marks for direct quotes."
+      "annotation": "Brief context about WHY this story matters — do NOT cite specific data values (those will be filled from FRED later). Focus on the narrative significance."
     }}
   ],
   "headlines": [
